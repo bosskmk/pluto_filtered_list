@@ -22,11 +22,6 @@ jobs:
     - name: Set version name
       run: echo "VERSION_NAME=$(echo $BRANCH_NAME | cut -d '/' -f 2)" >> $GITHUB_ENV
 
-    # delete unnecessary directories
-    - run: |
-        rm -rf ./test
-        rm -rf ./tool
-
     - name: Print Dart SDK version
       run: dart --version
 
@@ -41,6 +36,10 @@ jobs:
 
     - name: Run tests
       run: dart test
+
+      # delete unnecessary directories
+    - run: |
+        rm -rf ./test
 
     # tagging version
     - run: |
