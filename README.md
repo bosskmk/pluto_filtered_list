@@ -1,5 +1,7 @@
 ## PlutoFilteredList - v0.0.1-alpha.0
 
+[![codecov](https://codecov.io/gh/bosskmk/pluto_filtered_list/branch/main/graph/badge.svg)](https://codecov.io/gh/bosskmk/pluto_filtered_list)
+
 <br>
 
 A List where filters can be applied to the List and elements can be accessed or modified in that state.
