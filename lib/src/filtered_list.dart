@@ -1,18 +1,49 @@
 part of '../pluto_filtered_list.dart';
 
+/// Callback function to set in [setFilter].
 typedef FilteredListFilter<E> = bool Function(E element);
 
+/// Properties and methods extended to [List].
 abstract class AbstractFilteredList<E> implements ListBase<E> {
+  /// Pure unfiltered list.
   List<E> get originalList;
 
+  /// Filtered list. Same as [originalList] if filter is null.
   List<E> get filteredList;
 
+  /// Whether to set a filter.
   bool get hasFilter;
 
+  /// Method to set the filter.
   void setFilter(FilteredListFilter<E> filter);
+
+  /// [List.remove] method removes an element from the filtered scope.
+  /// Use removeFromOriginal to remove elements from all list scopes.
+  bool removeFromOriginal(Object element);
+
+  /// [List.removeWhere] method removes an element from the filtered scope.
+  /// Use removeWhereFromOriginal to remove elements from all list scopes.
+  void removeWhereFromOriginal(bool Function(E element) test);
+
+  /// [List.retainWhere] method removes an element from the filtered scope.
+  /// Use retainWhereFromOriginal to remove elements from all list scopes.
+  void retainWhereFromOriginal(bool Function(E element) test);
+
+  /// [List.clear] method removes an element from the filtered scope.
+  /// Use clearFromOriginal to remove elements from all list scopes.
+  void clearFromOriginal();
 }
 
+/// An extension class of List that applies a filter to a List and can access,
+/// modify, or delete the list in that state.
 class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
+  /// Pass the list to be set initially to initialList.
+  /// If not passed, an empty list is created.
+  ///
+  /// ```dart
+  /// FilteredList();
+  /// FilteredList(initialList: [1, 2, 3]);
+  /// ```
   FilteredList({
     List<E> initialList,
   }) : _list = initialList ?? [];
@@ -63,7 +94,15 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   bool remove(Object element) {
-    // todo : If a filter is applied, it is only deleted from the list.
+    if (_isNotInList(element, _effectiveList)) {
+      return false;
+    }
+
+    return removeFromOriginal(element);
+  }
+
+  @override
+  bool removeFromOriginal(Object element) {
     var result;
 
     _isolated(() {
@@ -75,7 +114,17 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   void removeWhere(bool Function(E element) test) {
-    // todo : If a filter is applied, it is only deleted from the list.
+    var list = _effectiveList;
+
+    _isolated(() {
+      super.removeWhere((E element) {
+        return _isInList(element, list) && test(element);
+      });
+    });
+  }
+
+  @override
+  void removeWhereFromOriginal(bool Function(E element) test) {
     _isolated(() {
       super.removeWhere(test);
     });
@@ -83,10 +132,37 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   void retainWhere(bool Function(E element) test) {
-    // todo : If a filter is applied, it is only deleted from the list.
+    var list = _effectiveList;
+
+    _isolated(() {
+      super.retainWhere((E element) {
+        var isInList = _isInList(element, list);
+        return !isInList || (_isInList(element, list) && test(element));
+      });
+    });
+  }
+
+  @override
+  void retainWhereFromOriginal(bool Function(E element) test) {
     _isolated(() {
       super.retainWhere(test);
     });
+  }
+
+  @override
+  void clear() {
+    var list = _effectiveList;
+
+    _isolated(() {
+      super.removeWhere((E element) {
+        return _isInList(element, list);
+      });
+    });
+  }
+
+  @override
+  void clearFromOriginal() {
+    length = 0;
   }
 
   @override
@@ -199,5 +275,17 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
     callback();
 
     setFilter(storeFilter);
+  }
+
+  bool _isInList(Object element, List<E> list) {
+    return list.firstWhere(
+          (e) => e == element,
+          orElse: () => null,
+        ) !=
+        null;
+  }
+
+  bool _isNotInList(Object element, List<E> list) {
+    return !_isInList(element, list);
   }
 }

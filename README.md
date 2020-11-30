@@ -1,4 +1,4 @@
-## PlutoFilteredList - v0.0.1-alpha.0
+## PlutoFilteredList - v0.0.1-alpha.1
 
 [![codecov](https://codecov.io/gh/bosskmk/pluto_filtered_list/branch/main/graph/badge.svg)](https://codecov.io/gh/bosskmk/pluto_filtered_list)
 
@@ -18,12 +18,58 @@ A List where filters can be applied to the List and elements can be accessed or 
 
 <br>
 
+### Todo
+
+* Not implemented yet.
+  - removeRange, fillRange, replaceRange.
+* Should be modified.
+  - insert : With the filter applied, the index position to be inserted needs to be adjusted.
+  - removeAt
+    + With the filter applied, the index position to be deleted needs to be adjusted.
+    + If the filter is applied, delete the element from the range.
+  - insertAll : With the filter applied, the index position to be inserted needs to be adjusted.
+
+<br>
+
+### Done
+
+  ```dart
+  var list = FilteredList(initialList: [1, 2, 3, 4, 5]);
+  ```
+
+* remove : If the filter has been applied, the element is removed from the range where the filter is applied.
+  ```dart
+  list.setFilter((e) => e > 3); // [4, 5]
+  var removedThree = list.remove(3); // false
+  var removedFour = list.remove(4); // true
+  
+  list.setFilter(null); // [1, 2, 3, 5]
+  var removedThreeAgain = list.remove(3); // true
+  ```
+* removeFromOriginal : Removes elements across the entire scope regardless of filter application.
+  ```dart
+  list.setFilter((e) => e > 3); // [4, 5]
+  var removedThree = list.removeFromOriginal(3); // true
+  var removedFour = list.removeFromOriginal(4); // true
+  
+  list.setFilter(null); // [1, 2, 5]
+  var removedThreeAgain = list.removeFromOriginal(3); // false
+  ```
+* removeWhere : If the filter has been applied, the element is removed from the range where the filter is applied.
+* removeWhereFromOriginal : Removes elements across the entire scope regardless of filter application.
+* retainWhere : If the filter has been applied, the element is retained from the range where the filter is applied.
+* retainWhereFromOriginal : Retains elements across the entire scope regardless of filter application.
+* clear : If the filter has been applied, the element is cleared from the range where the filter is applied.
+* clearFromOriginal : Clears elements across the entire scope.
+* shuffle : Shuffles elements across the entire scope.
+
 ### Example
 ```dart
+/// Create an empty list.
 var filteredList = FilteredList<String>();
-// or set with initialList.
-// FilteredList(initialList: [1, 2, 3]);
 
+/// Contains the methods of List.
+/// add, remove, clear, where, ...
 filteredList.add('one');
 
 print(filteredList); // ['one']
@@ -32,16 +78,23 @@ filteredList.addAll(['two', 'three', 'four', 'five']);
 
 print(filteredList); // ['one', 'two', 'three', 'four', 'five']
 
+/// Set the filter.
+/// Implement a callback function that returns a bool type.
+/// The example filters a string of length 4, as shown below.
 filteredList.setFilter((element) => element.length == 4); // ['four', 'five']
 
+/// Only elements of length 4 in the list were filtered out,
+/// resulting in the length of the list being 2.
 print(filteredList.length); // 2
 
 print(filteredList[0]); // 'four'
 
 print(filteredList[1]); // 'five'
 
+/// You can turn off the filter by passing null to setFilter.
 filteredList.setFilter(null); // ['one', 'two', 'three', 'four', 'five']
 
+/// The filter is cleared, so the length of the original list is 5.
 print(filteredList.length); // 5
 
 print(filteredList[0]); // 'one'

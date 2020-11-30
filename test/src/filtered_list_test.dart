@@ -146,10 +146,36 @@ void main() {
 
     group('remove 로 요소를 삭제.', () {
       setUp(() {
+        // filtering 된 상태에서 필터링 범위 밖의 리스트는 삭제 되지 않는다.
         var removeOne = list.remove(1);
-        expect(removeOne, isTrue);
+        expect(removeOne, isFalse);
 
         var removeTwo = list.remove(2);
+        expect(removeTwo, isTrue);
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 3);
+
+          expect(list, [4, 6, 8]);
+
+          list.setFilter(null);
+
+          expect(list.length, 8);
+
+          expect(list, [1, 3, 4, 5, 6, 7, 8, 9]);
+        },
+      );
+    });
+
+    group('removeFromOriginal 로 요소를 삭제.', () {
+      setUp(() {
+        var removeOne = list.removeFromOriginal(1);
+        expect(removeOne, isTrue);
+
+        var removeTwo = list.removeFromOriginal(2);
         expect(removeTwo, isTrue);
       });
 
@@ -171,8 +197,31 @@ void main() {
 
     group('removeWhere 로 요소를 삭제.', () {
       setUp(() {
+        // filtering 된 상태에서 필터링 범위 밖의 리스트는 삭제 되지 않는다.
         list.removeWhere((element) => element == 1);
         list.removeWhere((element) => element == 2);
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 3);
+
+          expect(list, [4, 6, 8]);
+
+          list.setFilter(null);
+
+          expect(list.length, 8);
+
+          expect(list, [1, 3, 4, 5, 6, 7, 8, 9]);
+        },
+      );
+    });
+
+    group('removeWhereFromOriginal 로 요소를 삭제.', () {
+      setUp(() {
+        list.removeWhereFromOriginal((element) => element == 1);
+        list.removeWhereFromOriginal((element) => element == 2);
       });
 
       test(
@@ -193,7 +242,29 @@ void main() {
 
     group('retainWhere 로 요소를 삭제.', () {
       setUp(() {
+        // filtering 된 상태에서 필터링 범위 밖의 리스트는 삭제 되지 않는다.
         list.retainWhere((element) => element > 2);
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 3);
+
+          expect(list, [4, 6, 8]);
+
+          list.setFilter(null);
+
+          expect(list.length, 8);
+
+          expect(list, [1, 3, 4, 5, 6, 7, 8, 9]);
+        },
+      );
+    });
+
+    group('retainWhereFromOriginal 로 요소를 삭제.', () {
+      setUp(() {
+        list.retainWhereFromOriginal((element) => element > 2);
       });
 
       test(
@@ -214,7 +285,29 @@ void main() {
 
     group('clear 로 요소를 삭제.', () {
       setUp(() {
+        // filtering 된 상태에서 필터링 범위 밖의 리스트는 삭제 되지 않는다.
         list.clear();
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 0);
+
+          expect(list, []);
+
+          list.setFilter(null);
+
+          expect(list.length, 5);
+
+          expect(list, [1, 3, 5, 7, 9]);
+        },
+      );
+    });
+
+    group('clearFromOriginal 로 요소를 삭제.', () {
+      setUp(() {
+        list.clearFromOriginal();
       });
 
       test(
