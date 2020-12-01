@@ -8,6 +8,48 @@ void main() {
     list = FilteredList(initialList: [1, 2, 3, 4, 5]);
   });
 
+  test('insert', () {
+    list.setFilter((e) => e > 3); // [4, 5]
+    expect(list, [4, 5]);
+
+    list.insert(0, 35);
+    expect(list, [35, 4, 5]);
+
+    list.setFilter(null); // [1, 2, 3, 35, 4, 5]
+    expect(list, [1, 2, 3, 35, 4, 5]);
+
+    list.insert(0, -1);
+    expect(list, [-1, 1, 2, 3, 35, 4, 5]);
+  });
+
+  test('removeAt', () {
+    list.setFilter((e) => e > 3); // [4, 5]
+    expect(list, [4, 5]);
+
+    list.removeAt(0);
+    expect(list, [5]);
+
+    list.setFilter(null); // [1, 2, 3, 5]
+    expect(list, [1, 2, 3, 5]);
+
+    list.removeAt(0);
+    expect(list, [2, 3, 5]);
+  });
+
+  test('insertAll', () {
+    list.setFilter((e) => e > 3); // [4, 5]
+    expect(list, [4, 5]);
+
+    list.insertAll(0, [35, 36, 37]);
+    expect(list, [35, 36, 37, 4, 5]);
+
+    list.setFilter(null); // [1, 2, 3, 35, 36, 37, 4, 5]
+    expect(list, [1, 2, 3, 35, 36, 37, 4, 5]);
+
+    list.insertAll(0, [-1, -2, -3]);
+    expect(list, [-1, -2, -3, 1, 2, 3, 35, 36, 37, 4, 5]);
+  });
+
   test('remove', () {
     list.setFilter((e) => e > 3); // [4, 5]
     expect(list, [4, 5]);

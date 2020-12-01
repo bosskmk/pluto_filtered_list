@@ -1,4 +1,4 @@
-## PlutoFilteredList - v0.0.1-alpha.1
+## PlutoFilteredList - v0.0.1-alpha.2
 
 [![codecov](https://codecov.io/gh/bosskmk/pluto_filtered_list/branch/main/graph/badge.svg)](https://codecov.io/gh/bosskmk/pluto_filtered_list)
 
@@ -22,12 +22,6 @@ A List where filters can be applied to the List and elements can be accessed or 
 
 * Not implemented yet.
   - removeRange, fillRange, replaceRange.
-* Should be modified.
-  - insert : With the filter applied, the index position to be inserted needs to be adjusted.
-  - removeAt
-    + With the filter applied, the index position to be deleted needs to be adjusted.
-    + If the filter is applied, delete the element from the range.
-  - insertAll : With the filter applied, the index position to be inserted needs to be adjusted.
 
 <br>
 
@@ -37,6 +31,30 @@ A List where filters can be applied to the List and elements can be accessed or 
   var list = FilteredList(initialList: [1, 2, 3, 4, 5]);
   ```
 
+* insert : If the filter is applied, the index at which the element is added is adjusted.
+  ```dart
+  list.setFilter((e) => e > 3); // [4, 5]
+  list.insert(0, 35); // [35, 4, 5]
+
+  list.setFilter(null); // [1, 2, 3, 35, 4, 5]
+  list.insert(0, -1); // [-1, 1, 2, 3, 35, 4, 5]
+  ```
+* removeAt : If the filter is applied, the index at which the element is removed is adjusted.
+  ```dart
+  list.setFilter((e) => e > 3); // [4, 5]
+  list.removeAt(0); // [5]
+
+  list.setFilter(null); // [1, 2, 3, 5]
+  list.removeAt(0); // [2, 3, 5]
+  ```
+* insertAll : If the filter is applied, the index at which the element is added is adjusted.
+  ```dart
+  list.setFilter((e) => e > 3); // [4, 5]
+  list.insertAll(0, [35, 36, 37]); // [35, 36, 37, 4, 5]
+
+  list.setFilter(null); // [1, 2, 3, 35, 36, 37, 4, 5]
+  list.insertAll(0, [-1, -2, -3]); // [-1, -2, -3, 1, 2, 3, 35, 36, 37, 4, 5]
+  ```
 * remove : If the filter has been applied, the element is removed from the range where the filter is applied.
   ```dart
   list.setFilter((e) => e > 3); // [4, 5]
@@ -61,6 +79,8 @@ A List where filters can be applied to the List and elements can be accessed or 
 * retainWhereFromOriginal : Retains elements across the entire scope regardless of filter application.
 * clear : If the filter has been applied, the element is cleared from the range where the filter is applied.
 * clearFromOriginal : Clears elements across the entire scope.
+* removeLast : The last element is deleted while the filter is applied.
+* removeLastFromOriginal : Delete the last element from the entire list.
 * shuffle : Shuffles elements across the entire scope.
 
 ### Example

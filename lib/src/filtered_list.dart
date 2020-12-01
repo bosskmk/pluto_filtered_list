@@ -32,6 +32,10 @@ abstract class AbstractFilteredList<E> implements ListBase<E> {
   /// [List.clear] method removes an element from the filtered scope.
   /// Use clearFromOriginal to remove elements from all list scopes.
   void clearFromOriginal();
+
+  /// [List.removeLast] method removes an element from the filtered scope.
+  /// Use removeLastFromOriginal to remove an element from all list scopes.
+  E removeLastFromOriginal();
 }
 
 /// An extension class of List that applies a filter to a List and can access,
@@ -166,6 +170,22 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
   }
 
   @override
+  E removeLast() {
+    return removeAt(_effectiveList.length - 1);
+  }
+
+  @override
+  E removeLastFromOriginal() {
+    var result;
+
+    _isolated(() {
+      result = super.removeLast();
+    });
+
+    return result;
+  }
+
+  @override
   void shuffle([Random random]) {
     _isolated(() {
       super.shuffle(random);
@@ -192,20 +212,21 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   void insert(int index, E element) {
-    // todo : If a filter is applied to the list, adjust the index position.
+    var originalIndex = _toOriginalIndex(index);
+
     _isolated(() {
-      super.insert(index, element);
+      super.insert(originalIndex, element);
     });
   }
 
   @override
   E removeAt(int index) {
-    // todo : If a filter is applied, it is only deleted from the list.
-    // todo : If a filter is applied to the list, adjust the index position.
+    var originalIndex = _toOriginalIndex(index);
+
     E result;
 
     _isolated(() {
-      result = super.removeAt(index);
+      result = super.removeAt(originalIndex);
     });
 
     return result;
@@ -213,9 +234,10 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   void insertAll(int index, Iterable<E> iterable) {
-    // todo : If a filter is applied to the list, adjust the index position.
+    var originalIndex = _toOriginalIndex(index);
+
     _isolated(() {
-      super.insertAll(index, iterable);
+      super.insertAll(originalIndex, iterable);
     });
   }
 
@@ -231,25 +253,7 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
       return;
     }
 
-    final originalValue = _effectiveList[index];
-
-    final valueIndexes = _list
-        .asMap()
-        .entries
-        .map((e) => _compare(e.value, originalValue) ? e.key : null)
-        .where((element) => element != null)
-        .toList(growable: false);
-
-    final found = valueIndexes.length;
-
-    if (found == 1) {
-      _list[valueIndexes[0]] = value;
-    } else if (found > 1) {
-      _list[valueIndexes.elementAt(index)] = value;
-    } else {
-      throw Exception(
-          'With the filter applied, the value cannot be found in the list by that index.');
-    }
+    _list[_toOriginalIndex(index)] = value;
   }
 
   bool _compare(dynamic a, dynamic b) {
@@ -287,5 +291,32 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   bool _isNotInList(Object element, List<E> list) {
     return !_isInList(element, list);
+  }
+
+  int _toOriginalIndex(int index) {
+    if (!hasFilter) {
+      return index;
+    }
+
+    final originalValue = _effectiveList[index];
+
+    final valueIndexes = _list
+        .asMap()
+        .entries
+        .map((e) => _compare(e.value, originalValue) ? e.key : null)
+        .where((element) => element != null);
+
+    final found = valueIndexes.length;
+
+    if (found < 1) {
+      throw Exception(
+          'With the filter applied, the value cannot be found in the list by that index.');
+    }
+
+    if (found == 1) {
+      return valueIndexes.first;
+    }
+
+    return valueIndexes.elementAt(index);
   }
 }

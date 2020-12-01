@@ -326,6 +326,48 @@ void main() {
       );
     });
 
+    group('removeLast 로 요소를 삭제.', () {
+      setUp(() {
+        list.removeLast();
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 3);
+
+          expect(list, [2, 4, 6]);
+
+          list.setFilter(null);
+
+          expect(list.length, 8);
+
+          expect(list, [1, 2, 3, 4, 5, 6, 7, 9]);
+        },
+      );
+    });
+
+    group('removeLastFromOriginal 로 요소를 삭제.', () {
+      setUp(() {
+        list.removeLastFromOriginal();
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 4);
+
+          expect(list, [2, 4, 6, 8]);
+
+          list.setFilter(null);
+
+          expect(list.length, 8);
+
+          expect(list, [1, 2, 3, 4, 5, 6, 7, 8]);
+        },
+      );
+    });
+
     group('shuffle 로 요소를 변경.', () {
       setUp(() {
         list.shuffle();
@@ -389,8 +431,7 @@ void main() {
 
           expect(list.length, 10);
 
-          // todo : If a filter is applied to the list, adjust the index position.
-          // expect(list, [1, -2, 2, 3, 4, 5, 6, 7, 8, 9]);
+          expect(list, [1, -2, 2, 3, 4, 5, 6, 7, 8, 9]);
         },
       );
     });
@@ -405,15 +446,49 @@ void main() {
         () {
           expect(list.length, 3);
 
-          // todo : If a filter is applied to the list, adjust the index position.
-          // expect(list, [2, 6, 8]);
+          expect(list, [2, 6, 8]);
 
           list.setFilter(null);
 
           expect(list.length, 8);
 
-          // todo : If a filter is applied to the list, adjust the index position.
-          // expect(list, [1, 2, 3, 5, 6, 7, 8, 9]);
+          expect(list, [1, 2, 3, 5, 6, 7, 8, 9]);
+        },
+      );
+
+      test(
+        '필터링 된 범위 밖의 index 접근 시 오류를 발생 시켜야 한다.',
+        () {
+          expect(list.length, 3);
+
+          expect(() => list.removeAt(3), throwsA(TypeMatcher<RangeError>()));
+
+          list.setFilter(null);
+
+          expect(list.length, 8);
+
+          expect(() => list.removeAt(8), throwsA(TypeMatcher<RangeError>()));
+        },
+      );
+    });
+
+    group('insertAll 로 2 앞에  [-3, -2] 요소를 추가.', () {
+      setUp(() {
+        list.insertAll(0, [-3, -2]);
+      });
+
+      test(
+        'length 가 반영 되어야 한다.',
+        () {
+          expect(list.length, 5);
+
+          expect(list, [-2, 2, 4, 6, 8]);
+
+          list.setFilter(null);
+
+          expect(list.length, 11);
+
+          expect(list, [1, -3, -2, 2, 3, 4, 5, 6, 7, 8, 9]);
         },
       );
     });
