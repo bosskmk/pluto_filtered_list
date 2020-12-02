@@ -56,12 +56,9 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   FilteredListFilter<E> _filter;
 
-  List<E> get _effectiveList => hasFilter ? _filteredList : _originalList;
+  List<E> get _effectiveList => hasFilter ? _filteredList : _list;
 
-  List<E> get _filteredList =>
-      hasFilter ? _list.where(_filter).toList() : _list;
-
-  List<E> get _originalList => _list;
+  List<E> _filteredList = [];
 
   @override
   List<E> get originalList => [..._list];
@@ -81,19 +78,33 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
   }
 
   @override
-  void setFilter(FilteredListFilter<E> filter) => _filter = filter;
+  void setFilter(FilteredListFilter<E> filter) {
+    _filter = filter;
+
+    _updateFilteredList();
+  }
 
   @override
-  void add(E element) => _list.add(element);
+  void add(E element) {
+    _list.add(element);
+
+    _updateFilteredList();
+  }
 
   @override
-  void addAll(Iterable<E> iterable) => _list.addAll(iterable);
+  void addAll(Iterable<E> iterable) {
+    _list.addAll(iterable);
+
+    _updateFilteredList();
+  }
 
   @override
   void sort([int Function(E a, E b) compare]) {
-    _isolated(() {
+    _workOnOriginalList(() {
       super.sort(compare);
     });
+
+    _updateFilteredList();
   }
 
   @override
@@ -109,9 +120,11 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
   bool removeFromOriginal(Object element) {
     var result;
 
-    _isolated(() {
+    _workOnOriginalList(() {
       result = super.remove(element);
     });
+
+    _updateFilteredList();
 
     return result;
   }
@@ -120,76 +133,96 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
   void removeWhere(bool Function(E element) test) {
     var list = _effectiveList;
 
-    _isolated(() {
+    _workOnOriginalList(() {
       super.removeWhere((E element) {
         return _isInList(element, list) && test(element);
       });
     });
+
+    _updateFilteredList();
   }
 
   @override
   void removeWhereFromOriginal(bool Function(E element) test) {
-    _isolated(() {
+    _workOnOriginalList(() {
       super.removeWhere(test);
     });
+
+    _updateFilteredList();
   }
 
   @override
   void retainWhere(bool Function(E element) test) {
     var list = _effectiveList;
 
-    _isolated(() {
+    _workOnOriginalList(() {
       super.retainWhere((E element) {
         var isInList = _isInList(element, list);
         return !isInList || (_isInList(element, list) && test(element));
       });
     });
+
+    _updateFilteredList();
   }
 
   @override
   void retainWhereFromOriginal(bool Function(E element) test) {
-    _isolated(() {
+    _workOnOriginalList(() {
       super.retainWhere(test);
     });
+
+    _updateFilteredList();
   }
 
   @override
   void clear() {
     var list = _effectiveList;
 
-    _isolated(() {
+    _workOnOriginalList(() {
       super.removeWhere((E element) {
         return _isInList(element, list);
       });
     });
+
+    _updateFilteredList();
   }
 
   @override
   void clearFromOriginal() {
     length = 0;
+
+    _updateFilteredList();
   }
 
   @override
   E removeLast() {
-    return removeAt(_effectiveList.length - 1);
+    var result = removeAt(_effectiveList.length - 1);
+
+    _updateFilteredList();
+
+    return result;
   }
 
   @override
   E removeLastFromOriginal() {
     var result;
 
-    _isolated(() {
+    _workOnOriginalList(() {
       result = super.removeLast();
     });
+
+    _updateFilteredList();
 
     return result;
   }
 
   @override
   void shuffle([Random random]) {
-    _isolated(() {
+    _workOnOriginalList(() {
       super.shuffle(random);
     });
+
+    _updateFilteredList();
   }
 
   @override
@@ -214,9 +247,11 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
   void insert(int index, E element) {
     var originalIndex = _toOriginalIndex(index);
 
-    _isolated(() {
+    _workOnOriginalList(() {
       super.insert(originalIndex, element);
     });
+
+    _updateFilteredList();
   }
 
   @override
@@ -225,9 +260,11 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
     E result;
 
-    _isolated(() {
+    _workOnOriginalList(() {
       result = super.removeAt(originalIndex);
     });
+
+    _updateFilteredList();
 
     return result;
   }
@@ -236,9 +273,11 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
   void insertAll(int index, Iterable<E> iterable) {
     var originalIndex = _toOriginalIndex(index);
 
-    _isolated(() {
+    _workOnOriginalList(() {
       super.insertAll(originalIndex, iterable);
     });
+
+    _updateFilteredList();
   }
 
   @override
@@ -254,6 +293,8 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
     }
 
     _list[_toOriginalIndex(index)] = value;
+
+    _updateFilteredList();
   }
 
   bool _compare(dynamic a, dynamic b) {
@@ -266,7 +307,7 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
     return a == b;
   }
 
-  void _isolated(void Function() callback) {
+  void _workOnOriginalList(void Function() callback) {
     if (!hasFilter) {
       callback();
       return;
@@ -318,5 +359,9 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
     }
 
     return valueIndexes.elementAt(index);
+  }
+
+  void _updateFilteredList() {
+    _filteredList = _filter == null ? [] : _list.where(_filter).toList();
   }
 }

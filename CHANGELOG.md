@@ -1,3 +1,7 @@
+## 0.0.1-alpha.3
+
+* Reduce filter calls.
+
 ## 0.0.1-alpha.2
 
 * Limits the scope of application of the method while the filter is applied.

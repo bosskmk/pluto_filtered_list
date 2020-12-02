@@ -33,7 +33,7 @@ void main() {
 
         list.setFilter(null);
 
-        expect(list.filteredList.length, 9);
+        expect(list.filteredList.length, 0);
       },
     );
 
