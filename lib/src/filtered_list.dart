@@ -36,6 +36,11 @@ abstract class AbstractFilteredList<E> implements ListBase<E> {
   /// [List.removeLast] method removes an element from the filtered scope.
   /// Use removeLastFromOriginal to remove an element from all list scopes.
   E removeLastFromOriginal();
+
+  /// Update filtering results.
+  /// Called when the filter is not changed
+  /// and the filtering result changes due to the change of the attribute value of the list.
+  void update();
 }
 
 /// An extension class of List that applies a filter to a List and can access,
@@ -297,6 +302,11 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
     _updateFilteredList();
   }
 
+  @override
+  void update() {
+    _updateFilteredList();
+  }
+
   bool _compare(dynamic a, dynamic b) {
     if (a is String || a is int || a is double || a is bool) {
       return a == b;
@@ -366,9 +376,8 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
     var greaterThanLast = index > lastIndex;
 
-    var originalIndex = greaterThanLast
-        ? _toOriginalIndex(lastIndex)
-        : _toOriginalIndex(index);
+    var originalIndex =
+        greaterThanLast ? _toOriginalIndex(lastIndex) : _toOriginalIndex(index);
 
     if (greaterThanLast) {
       ++originalIndex;

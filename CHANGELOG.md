@@ -1,3 +1,7 @@
+## 0.1.0
+
+* Add update method.
+
 ## 0.0.2
 
 * Fix error when inserting or insertAll after last element.
