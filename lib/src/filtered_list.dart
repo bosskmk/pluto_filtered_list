@@ -245,7 +245,7 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   void insert(int index, E element) {
-    var originalIndex = _toOriginalIndex(index);
+    var originalIndex = _toOriginalIndexForInsert(index);
 
     _workOnOriginalList(() {
       super.insert(originalIndex, element);
@@ -271,7 +271,7 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
 
   @override
   void insertAll(int index, Iterable<E> iterable) {
-    var originalIndex = _toOriginalIndex(index);
+    var originalIndex = _toOriginalIndexForInsert(index);
 
     _workOnOriginalList(() {
       super.insertAll(originalIndex, iterable);
@@ -359,6 +359,22 @@ class FilteredList<E> extends ListBase<E> implements AbstractFilteredList<E> {
     }
 
     return valueIndexes.elementAt(index);
+  }
+
+  int _toOriginalIndexForInsert(int index) {
+    var lastIndex = _effectiveList.length - 1;
+
+    var greaterThanLast = index > lastIndex;
+
+    var originalIndex = greaterThanLast
+        ? _toOriginalIndex(lastIndex)
+        : _toOriginalIndex(index);
+
+    if (greaterThanLast) {
+      ++originalIndex;
+    }
+
+    return originalIndex;
   }
 
   void _updateFilteredList() {

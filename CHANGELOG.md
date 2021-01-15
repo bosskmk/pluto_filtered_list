@@ -1,3 +1,7 @@
+## 0.0.2
+
+* Fix error when inserting or insertAll after last element.
+
 ## 0.0.1
 
 * Release 0.0.1
