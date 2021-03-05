@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: google/dart:stable
+      image: google/dart
 
     steps:
     # Without this, there are no files in the directory.
