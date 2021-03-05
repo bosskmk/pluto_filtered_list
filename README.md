@@ -1,4 +1,4 @@
-## PlutoFilteredList - v0.1.0
+## PlutoFilteredList - v0.2.0
 
 [![codecov](https://codecov.io/gh/bosskmk/pluto_filtered_list/branch/main/graph/badge.svg)](https://codecov.io/gh/bosskmk/pluto_filtered_list)
 

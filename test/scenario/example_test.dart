@@ -2,7 +2,7 @@ import 'package:pluto_filtered_list/pluto_filtered_list.dart';
 import 'package:test/test.dart';
 
 void main() {
-  FilteredList<int> list;
+  late FilteredList<int> list;
 
   setUp(() {
     list = FilteredList(initialList: [1, 2, 3, 4, 5]);

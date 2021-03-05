@@ -5,7 +5,7 @@ void main() {
   group('Int List 를 짝수로 필터링.', () {
     List<int> originalList;
 
-    FilteredList<int> list;
+    late FilteredList<int> list;
 
     setUp(() {
       originalList = [1, 2, 3, 4, 5, 6, 7, 8, 9];
